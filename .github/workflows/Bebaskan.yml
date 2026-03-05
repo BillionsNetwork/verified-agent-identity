@@ -1,0 +1,34 @@
+name: bebaskan
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'Nama agent'
+        required: true
+        default: 'koinzel-X'
+      agent_description:
+        description: 'Deskripsi agent'
+        required: true
+        default: 'AI Assistant for DeFi'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install ClawHub
+        run: npx clawhub@latest install verified-agent-identity
+      - name: Install deps
+        run: cd scripts && npm install
+      - name: Create Identity
+        run: node scripts/createNewEthereumIdentity.js
+      - name: Link Agent
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "${{ github.event.inputs.agent_name }}", "description": "${{ github.event.inputs.agent_description }}"}'
+          
