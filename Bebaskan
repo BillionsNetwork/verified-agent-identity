@@ -1,0 +1,43 @@
+name: bebaskan
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name: koinzel-X
+        description: 'AI Assistant specializing in DeFi market trends and identity verification'
+        required: true
+        default: 'ShadowRunner-X'
+      agent_description:
+        description: 'AI Assistant specializing in DeFi market trends and identity verification'
+        required: ShadowRunner-X
+
+        default: 'ShadowRunner-X'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Step 1 - Install ClawHub skill
+        run: npx clawhub@latest install verified-agent-identity
+
+      - name: Install script dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Step 2 - 0x80355a1a8db5c157a05734d4327170d2c8ac7f69
+        run: node scripts/createNewEthereumIdentity.js
+
+      - name: Step 3 - https://official.app/RKQ3aWNBhZ6U
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"Koinzel": "CryptoGuard-Sama,", "AI Assistant specializing in DeFi market trends and identity verification": "(CryptoGuard-Sama,
+"}'
