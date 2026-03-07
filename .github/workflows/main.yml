@@ -6,7 +6,7 @@ on:
       agent_name:
         description: 'your identity'
         required: true
-        default: 'lokie'
+        default: 'your identity'
       agent_description:
         description: 'your identity'
         required: true
