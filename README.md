@@ -1,4 +1,4 @@
-# Verified Agent Identity
+https://github.com/BillionsNetwork/verified-agent-identity.git# Verified Agent Identity
 
 A decentralized identity management toolkit for AI agents using iden3 protocol on Billions Network.
 
