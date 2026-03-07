@@ -1,16 +1,16 @@
-name: ahman
+name: Verify Human Identity
 
 on:
   workflow_dispatch:
     inputs:
       agent_name:
-        description: 'finder'
+        description: 'ahman'
         required: true
-        default: 'finder'
+        default: 'ahman'
       agent_description:
-        description: 'finder'
+        description: 'ahman'
         required: true
-        default: 'finder AI Agent'
+        default: 'ahman AI Agent'
 
 jobs:
   verify:
@@ -38,4 +38,4 @@ jobs:
 
       - name: Step 3 - Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "finder", "description": "finder AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "ahman", "description": "ahman AI Agent"}'
