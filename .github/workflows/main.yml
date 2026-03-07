@@ -10,7 +10,7 @@ on:
       agent_description:
         description: 'finder'
         required: true
-        default: 'finder AI Agent'
+        default: 'ambalabu AI Agent'
 
 jobs:
   verify:
