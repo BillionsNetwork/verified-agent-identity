@@ -3,14 +3,14 @@ name: Verify Human Identity
 on:
   workflow_dispatch:
     inputs:
-      agent_name: 'ambalabu AI'
+      agent_name: konz AI
         description: 'finder'
         required: true
         default: 'finder'
       agent_description:
         description: 'finder'
         required: true
-        default: 'ambalabu AI Agent'
+        default: 'finder AI Agent'
 
 jobs:
   verify:
