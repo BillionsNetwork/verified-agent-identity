@@ -1,1 +1,15 @@
+name: Verify Agent
 
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Verification complete
+        run: echo "Agent verification workflow executed"
