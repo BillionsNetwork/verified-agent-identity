@@ -1,0 +1,32 @@
+name: Billions Agent Verify
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  verify-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Validate agents folder
+        run: |
+          if [ ! -d "agents" ]; then
+            echo "agents folder not found"
+            exit 1
+          fi
+
+      - name: Check JSON files
+        run: |
+          for file in agents/*.json; do
+            echo "Checking $file"
+            cat $file
+          done
+
+      - name: Finish verification
+        run: echo "Agent verification completed"
