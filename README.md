@@ -117,3 +117,13 @@ Prompt injection and arbitrary code execution are structurally impossible: the e
 ## Documentation
 
 See [SKILL.md](SKILL.md) for detailed usage instructions and examples.
+
+
+## Troubleshooting
+
+### Installation: Rate limit exceeded
+If you encounter a `Rate limit exceeded` error when running the `npx clawhub@latest install` command, it means the Clawhub registry API is currently experiencing high traffic. 
+
+**Workarounds:**
+1. **Cooldown:** Wait for 15-30 minutes before attempting the installation again.
+2. **Change Network:** The rate limit is often IP-based. Switching to a different network (e.g., mobile hotspot) to obtain a fresh IP address can bypass the restriction.
