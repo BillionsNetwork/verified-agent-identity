@@ -1,0 +1,41 @@
+name: Verify Human Identity
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'ltu3633'
+        required: true
+        default: 'ltu3633'
+      agent_description:
+        description: 'ltu3633'
+        required: true
+        default: 'finder AI Agent'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Cài đặt Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Bước 1 - Cài đặt ClawHub
+        run: npx clawhub@latest install verified-agent-identity
+
+      - name: Cài đặt các thư viện cần thiết
+        run: |
+          cd scripts
+          npm install
+
+      - name: Bước 2 - Tạo Ethereum Identity mới
+        run: node scripts/createNewEthereumIdentity.js
+
+      - name: Bước 3 - Xem link xác minh Agent
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "ltu3633", "description": "ltu3633 AI Agent"}'
