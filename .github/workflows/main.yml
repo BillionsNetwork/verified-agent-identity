@@ -2,13 +2,34 @@ name: Verify Human Identity
 
 on:
   workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'Boncos69'
+        required: true
+        default: 'Boncos69'
+      agent_description:
+        description: 'Boncos69'
+        required: true
+        default: 'Boncos69 AI Agent'
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Verify
-        run: echo "Human identity verified"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install ethers
+
+      - name: Create Ethereum identity
+        run: echo "Creating Ethereum identity..."
+
+      - name: Link human to agent
+        run: echo "Linking human identity..."
