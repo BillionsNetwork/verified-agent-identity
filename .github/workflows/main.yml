@@ -3,7 +3,7 @@ name: Verify Human Identity
 on:
   workflow_dispatch:
     inputs:
-      agent_name:'hkpBHMzC6u9FY'
+      agent_name:
         description: 'wingfo'
         required: true
         default: 'wingfo'
