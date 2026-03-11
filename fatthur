@@ -25,8 +25,8 @@ uses: actions/setup-node@v3
 with:
 node-version: '20'
 
-- name: Step 1 - Install fatthur skill
-run: npx fatthur@latest install verified-agent-identity
+- name: Step 1 - Install ClawHub skill
+run: npx clawhub@latest install verified-agent-identity
 
 - name: Install script dependencies
 run: |
