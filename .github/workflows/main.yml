@@ -1,4 +1,4 @@
-name: ayye
+name: Verify Human Identity
 on:
   workflow_dispatch:
     inputs:
@@ -35,4 +35,4 @@ jobs:
 
       - name: Step 3 - Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "${{ ayye }}", "description": "${{ ayye AI Agent }}"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "${{ github.event.inputs.agent_name }}", "description": "${{ github.event.inputs.agent_description }}"}'
