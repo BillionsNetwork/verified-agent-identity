@@ -1,4 +1,4 @@
-name: Verify Human Identity
+name: ayye
 on:
   workflow_dispatch:
     inputs:
