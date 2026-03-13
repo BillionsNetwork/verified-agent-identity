@@ -1,0 +1,66 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+الاسم: التحقق من هوية المستخدم
+
+عند:
+  إرسال سير العمل:
+    المدخلات:
+      اسم الوكيل:
+        الوصف: 'finder'
+        مطلوب: نعم
+        الافتراضي: 'finder'
+      وصف الوكيل:
+        الوصف: 'finder'
+        مطلوب: نعم
+        الافتراضي: 'وكيل الذكاء الاصطناعي finder'
+
+الوظائف:
+  التحقق:
+    يعمل على: ubuntu-latest
+
+    الخطوات:
+      - الاسم: استخراج المستودع
+        يستخدم: actions/checkout@v3
+
+      - الاسم: إعداد Node.js
+        يستخدم: actions/setup-node@v3
+        مع:
+          إصدار Node: '20'
+
+      - الاسم: الخطوة 1 - تثبيت مهارة ClawHub
+        التشغيل: npx clawhub@latest install verified-agent-identity
+
+- name: تثبيت تبعيات البرنامج النصي
+- run: |
+- cd scripts
+- npm install
+
+- name: الخطوة 2 - إنشاء هوية إيثيريوم جديدة
+- run: node scripts/createNewEthereumIdentity.js
+
+- name: الخطوة 3 - ربط المستخدم بالوكيل
+- run: |
+- node scripts/manualLinkHumanToAgent.js --challenge '{"name": "finder", "description": "finder AI Agent"}'aldi13u
