@@ -1,1 +1,12 @@
 
+name: Verify
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        run: echo "Verification running"
