@@ -7,7 +7,6 @@ const {
   formatError,
   outputSuccess,
   addHexPrefix,
-  normalizedKeyPath,
 } = require("./shared/utils");
 
 async function main() {
