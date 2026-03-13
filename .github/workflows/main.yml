@@ -7,4 +7,4 @@ workflow_dispatch:
       agent_description:
         description: 'edwinibnu'
         required: true
-        default: 'edwinibnu AI Agent'concurrency: 
+        default: 'edwinibnu AI Agent'
