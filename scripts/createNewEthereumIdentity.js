@@ -7,7 +7,6 @@ const {
   formatError,
   outputSuccess,
   addHexPrefix,
-  normalizedKeyPath,
 } = require("./shared/utils");
 
 async function main() {
@@ -37,13 +36,6 @@ async function main() {
       console.error("Error: Secp256k1 key provider not found");
       process.exit(1);
     }
-
-    // Import the key into KMS
-    const pkStorage = await keyProvider.getPkStore();
-    await pkStorage.importKey({
-      alias: normalizedKeyPath(KmsKeyType.Secp256k1, signer.publicKey),
-      key: signer.privateKey,
-    });
 
     // Create wallet with Billions Network provider
     const wallet = new Wallet(

@@ -3,7 +3,6 @@ const { CircuitId } = require("@0xpolygonid/js-sdk");
 const {
   buildEthereumAddressFromDid,
   parseArgs,
-  sendDirectMessage,
   urlFormating,
   outputSuccess,
   formatError,
@@ -23,6 +22,7 @@ const {
   pouScopeId,
   pouAllowedIssuer,
   authScopeId,
+  urlShortener,
 } = require("./constants");
 
 function createPOUScope(transactionSender) {
@@ -54,7 +54,7 @@ function createAuthScope(recipientDid) {
   };
 }
 
-function createAuthRequestMessage(jws, recipientDid) {
+async function createAuthRequestMessage(jws, recipientDid) {
   const callback = callbackBase + jws;
   const scope = [
     createPOUScope(transactionSender),
@@ -72,11 +72,24 @@ function createAuthRequestMessage(jws, recipientDid) {
     },
   );
 
-  const encodedMessage = encodeURI(
-    Buffer.from(JSON.stringify(message)).toString("base64"),
-  );
+  // the code does request to trusted URL shortener service to create
+  // a short link for the wallet deep link.
+  // This is needed to avoid issues with very long URLs in some wallets and to improve user experience.
+  const shortenerResponse = await fetch(`${urlShortener}/shortener`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(message),
+  });
 
-  return `${walletAddress}#i_m=${encodedMessage}`;
+  if (shortenerResponse.status !== 201) {
+    throw new Error(
+      `URL shortener failed with status ${shortenerResponse.status}`,
+    );
+  }
+
+  const { url } = await shortenerResponse.json();
+
+  return `${walletAddress}#request_uri=${url}`;
 }
 
 /**
@@ -102,19 +115,19 @@ async function createPairing(challenge, didOverride) {
   const recipientDid = entry.did;
   const signedChallenge = await signChallenge(challenge, entry, kms);
 
-  return createAuthRequestMessage(signedChallenge, recipientDid);
+  return await createAuthRequestMessage(signedChallenge, recipientDid);
 }
 
 async function main() {
   try {
     const args = parseArgs();
 
-    if (!args.challenge || !args.to) {
+    if (!args.challenge) {
       console.error(
         JSON.stringify({
           success: false,
           error:
-            "Invalid arguments. Usage: node linkHumanToAgent.js --to <sender> --challenge <json> [--did <did>]",
+            "Invalid arguments. Usage: node linkHumanToAgent.js --challenge <json> [--did <did>]",
         }),
       );
       process.exit(1);
@@ -123,11 +136,10 @@ async function main() {
     const challenge = JSON.parse(args.challenge);
     const url = await createPairing(challenge, args.did);
 
-    sendDirectMessage(args.to, url, (msg) =>
-      urlFormating(verificationMessage, msg),
-    );
-
-    outputSuccess({ success: true });
+    outputSuccess({
+      success: true,
+      data: urlFormating(verificationMessage, url),
+    });
   } catch (error) {
     console.error(formatError(error));
     process.exit(1);
