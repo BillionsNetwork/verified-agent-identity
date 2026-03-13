@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       agent_name:
-        description: 0'xcrypto'
+        description: '0xcrypto'
         required: true
         default: '0xcrypto'
       agent_description:
