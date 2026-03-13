@@ -77,24 +77,98 @@ npm dependencies are intentionally minimal and scoped to well-established, audit
 
 | Package                | Purpose                                                      |
 | ---------------------- | ------------------------------------------------------------ |
-| `@0xpolygonid/js-sdk`  | iden3/Polygon ID cryptographic primitives and key management |
+| `@0xpolygonid/js-sdk`  | iden3/Privado ID cryptographic primitives and key management |
 | `@iden3/js-iden3-core` | DID and identity core types                                  |
 | `@iden3/js-iden3-auth` | JWS/JWA authorization response construction and verification |
 | `ethers`               | Ethereum key utilities                                       |
 | `shell-quote`          | Shell token parsing used **only** for input sanitization     |
 | `uuid`                 | UUID generation for protocol message IDs                     |
 
+Core libraries governing identity management use pinned, well-tested versions to ensure stability and security.
+
 ### Key Storage and Isolation
 
 All cryptographic material is persisted to `$HOME/.openclaw/billions/` — a directory that lives **outside the agent's workspace**:
 
-| File               | Contents                                        |
-| ------------------ | ----------------------------------------------- |
-| `kms.json`         | Private keys (unencrypted, owner-readable only) |
-| `identities.json`  | Identity metadata                               |
-| `defaultDid.json`  | Active DID and associated public key            |
-| `challenges.json`  | Per-DID challenge history                       |
-| `credentials.json` | Verifiable credentials                          |
+| File               | Contents                                                                           |
+| ------------------ | ---------------------------------------------------------------------------------- |
+| `kms.json`         | Private keys — per-entry versioned format; keys are plain or AES-256-GCM encrypted |
+| `identities.json`  | Identity metadata                                                                  |
+| `defaultDid.json`  | Active DID and associated public key                                               |
+| `challenges.json`  | Per-DID challenge history                                                          |
+| `credentials.json` | Verifiable credentials                                                             |
+
+There are several ways of storing private keys, to enable master key encryption as described in the **KMS Encryption** section below.
+
+### KMS Encryption
+
+Set the environment variable `BILLIONS_NETWORK_MASTER_KMS_KEY` to enable AES-256-GCM at-rest encryption for the private keys inside `kms.json`. When set, every key value is individually encrypted on write; when absent, keys are stored as plain hex strings.
+
+**`kms.json` entry format**
+
+Each entry in the array is versioned. The `alias` is always stored in plaintext — only the `key` value is encrypted:
+
+```json
+[
+  {
+    "version": 1,
+    "provider": "plain",
+    "data": {
+      "alias": "secp256k1:abc123",
+      "key": "deadbeef...",
+      "createdAt": "2026-03-12T13:46:04.094Z"
+    }
+  },
+  {
+    "version": 1,
+    "provider": "encrypted",
+    "data": {
+      "alias": "secp256k1:xyz456",
+      "key": "<iv_hex>:<authTag_hex>:<ciphertext_hex>",
+      "createdAt": "2026-02-11T13:00:02.032Z"
+    }
+  }
+]
+```
+
+**Behavior summary**
+
+| `BILLIONS_NETWORK_MASTER_KMS_KEY` | `provider` on disk | `key` value on disk     |
+| --------------------------------- | ------------------ | ----------------------- |
+| Not set                           | `"plain"`          | Raw hex string          |
+| Set                               | `"encrypted"`      | `iv:authTag:ciphertext` |
+
+> **Backward compatibility** — the legacy format `[ { "alias": "...", "privateKeyHex": "..." } ]` is still read correctly. On the first write the file is automatically migrated to the new per-entry format. No manual step is required.
+
+**How to set the variable**
+
+_Option 1 — openclaw skill config (recommended for agent deployments):_
+
+Add an `env` block for the skill inside your openclaw config:
+
+```json
+"skills": {
+  "entries": {
+    "verified-agent-identity": {
+      "env": {
+        "BILLIONS_NETWORK_MASTER_KMS_KEY": "<your-strong-secret>"
+      }
+    }
+  }
+}
+```
+
+_Option 2 — shell or process environment:_
+
+```bash
+export BILLIONS_NETWORK_MASTER_KMS_KEY="<your-strong-secret>"
+node scripts/createNewEthereumIdentity.js
+node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Agent Name", "description": "Short description of the agent"}'
+```
+
+For all other ways to pass environment variables to a skill see the [OpenClaw environment documentation](https://docs.openclaw.ai/help/environment).
+
+**CRITICAL**: Save master keys securely and do not share them. If the master key is lost, all encrypted keys will be lost.
 
 ### Subprocess Execution Safety
 
@@ -110,9 +184,16 @@ Prompt injection and arbitrary code execution are structurally impossible: the e
 
 ### Network and External Binary Policy
 
-- All external http calls will be made to trusted resources.
+- All external https calls will be made to trusted resources. Signed JWS attestation (proof of agent ownership) is encoded securely by utilizing robust security practices and sent within user context directly to agent owner. It requires an explicit user consent to pass it to any external source. It is not sent automatically anywhere without user participation.
+  All network calls are directed to legitimate DID resolvers (resolver.privado.id) or the project's own infrastructure (billions.network).
+  These network calls cannot exfiltrate signed attestations or identity data to third-party services by skill design as they do not pass them. This is possible only through explicit action from the user side with consent. Also attestation contains only publicly verifiable information.
 - No external binary other than `openclaw` is invoked.
-- Any external URLs or verification links produced by the scripts are delivered to the user as a plain text message via `openclaw message send`. The agent has no ability to follow, fetch, open, or interact with those URLs in any way - it only forwards the string to the user.
+- External URLs or verification links produced by the scripts are delivered to the user as a plaintext message via `openclaw message send`. The agent has no ability to follow, fetch, open, or interact with those URLs in any way - it only forwards the string to the user.
+
+### Openclaw exec policy
+
+Code in the scripts/shared/utils.js uses shell command execution, but in a security-conscious manner using execFileSync to prevent shell interpolation and includes sanitization logic (assertNoShellOperators) to mitigate injection risks when calling the openclaw CLI. 
+Only the openclaw binary is invoked.
 
 ## Documentation
 

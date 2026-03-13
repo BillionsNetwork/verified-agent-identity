@@ -38,13 +38,6 @@ async function main() {
       process.exit(1);
     }
 
-    // Import the key into KMS
-    const pkStorage = await keyProvider.getPkStore();
-    await pkStorage.importKey({
-      alias: normalizedKeyPath(KmsKeyType.Secp256k1, signer.publicKey),
-      key: signer.privateKey,
-    });
-
     // Create wallet with Billions Network provider
     const wallet = new Wallet(
       signer,

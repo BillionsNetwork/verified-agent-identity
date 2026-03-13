@@ -1,7 +1,7 @@
 ---
 name: verified-agent-identity
-description: Billions/Iden3 authentication and identity management tools for agents. Link, proof, sign, and verify.
-metadata: { "category": "identity", "clawbot": { "requires": { "bins": ["node", "openclaw"] } }}
+description: Billions decentralized identity for agents. Link agents to human identities using Billions ERC-8004 and Attestation Registries. Verify and generate authentication proofs. Based on iden3 self-sovereign identity protocol.
+metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node", "openclaw"] } }}
 homepage: https://billions.network/
 ---
 
@@ -10,10 +10,10 @@ homepage: https://billions.network/
 Lets AI agents create and manage their own identities on the Billions Network, and link those identities to a human owner.
 
 1. When you need to link your agent identity to an owner.
-2. When you need sign a challenge.
-3. When you need link a human to the agent's DID.
+2. When you need to sign a challenge.
+3. When you need to link a human to the agent's DID.
 4. When you need to verify a signature to confirm identity ownership.
-5. When use shared JWT tokens for authentication.
+5. When you use shared JWT tokens for authentication.
 6. When you need to create and manage decentralized identities.
 
 ### After installing the plugin run the following commands to create an identity and link it to your human DID:
@@ -112,7 +112,7 @@ node scripts/signChallenge.js --to <sender> --challenge 8472951360
 ### linkHumanToAgent.js
 
 **Command**: `node scripts/linkHumanToAgent.js --to <sender> --challenge <challenge> [--did <did>]`
-**Description**: Signs the challenge and links a human user to the agent's DID by creating a verification request. Response will be sent as a direct message to the specified sender.
+**Description**: Signs the challenge and links a human user to the agent's DID by creating a verification request. Response will be sent as a direct message to the specified sender. Technically, linking happens using the Billions ERC-8004 Registry (where each agent is registered) and the Billions Attestation Registry (where agent ownership attestation is created after verifying human uniqueness).
 **Arguments**:
 
 - `--to` - (required) The message sender identifier, passed as `--target` to `openclaw message send`
@@ -168,7 +168,7 @@ node scripts/verifySignature.js --did did:iden3:billions:main:2VmAk... --token e
 
 The directory `$HOME/.openclaw/billions` contains all sensitive identity data:
 
-- `kms.json` - **CRITICAL**: Contains unencrypted private keys
+- `kms.json` - **CRITICAL**: Contains private keys (encrypted if BILLIONS_NETWORK_MASTER_KMS_KEY is set, otherwise in plaintext)
 - `defaultDid.json` - DID identifiers and public keys
 - `challenges.json` - Authentication challenges history
 - `credentials.json` - Verifiable credentials
@@ -197,7 +197,7 @@ User: "Link your agent identity to me"
 Agent: exec node scripts/linkHumanToAgent.js --to <sender> --challenge <challenge_value>
 ```
 
-### Verifying someone else's Identity
+### Verifying Someone Else’s Identity
 
 **Verification Flow:**
 
