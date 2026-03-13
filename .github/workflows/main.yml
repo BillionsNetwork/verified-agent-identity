@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       agent_name:
-        description: '0xcrypto'
+        description: 'Haruka'
         required: true
         default: 'Haruka'
       agent_description:
-        description: '0xcrypto'
+        description: 'Haruka'
         required: true
-        default: '0xcrypto AI Agent'
+        default: 'Haruka AI Agent'
 
 jobs:
   verify:
@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -37,4 +38,4 @@ jobs:
 
       - name: Step 3 - Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "0xcrypto", "description": "0xcrypto AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Haruka", "description": "Haruka AI Agent"}'
