@@ -1,8 +1,7 @@
 const { bytesToHex, keyPath } = require("@0xpolygonid/js-sdk");
 const { DID, Id } = require("@iden3/js-iden3-core");
 const { v7: uuid } = require("uuid");
-const { parse } = require("shell-quote");
-const { execFileSync } = require("child_process");
+const { secp256k1 } = require("@noble/curves/secp256k1");
 
 /**
  * Removes the "0x" prefix from a hexadecimal string if it exists
@@ -39,7 +38,9 @@ function createDidDocument(did, publicKeyHex) {
         controller: did,
         type: "EcdsaSecp256k1RecoveryMethod2020",
         ethereumAddress: buildEthereumAddressFromDid(did),
-        publicKeyHex: publicKeyHex,
+        publicKeyHex: secp256k1.Point.fromHex(publicKeyHex.slice(2)).toHex(
+          true,
+        ),
       },
     ],
     authentication: [`${did}#ethereum-based-id`],
@@ -115,56 +116,6 @@ function codeFormating(data) {
   return `\\\`\\\`\\\`${data}\\\`\\\`\\\``;
 }
 
-function assertNoShellOperators(field, val) {
-  const tokens = parse(val);
-  const hasShellOperator = tokens.some(
-    (t) => typeof t === "object" && t.op !== undefined,
-  );
-  if (hasShellOperator) {
-    throw new Error(
-      `"${field}" contains shell operators and was rejected: "${val}".`,
-    );
-  }
-}
-
-function sanitizeMessage(value) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error("Message must be a non-empty string.");
-  }
-  assertNoShellOperators("message", value);
-  return value;
-}
-
-function validateTarget(value) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error("Recipient (--to) must be a non-empty string.");
-  }
-
-  const SAFE_TARGET = /^[A-Za-z0-9:._@\-\/]+$/;
-  if (!SAFE_TARGET.test(value)) {
-    throw new Error(`Only DID format is allowed for recipient.`);
-  }
-  assertNoShellOperators("to", value);
-}
-
-function sendDirectMessage(target, message, formatterFn) {
-  validateTarget(target);
-  let safeMessage = sanitizeMessage(message);
-
-  if (formatterFn) {
-    safeMessage = formatterFn(safeMessage);
-  }
-
-  execFileSync("openclaw", [
-    "message",
-    "send",
-    "--target",
-    target,
-    "--message",
-    safeMessage,
-  ]);
-}
-
 module.exports = {
   normalizeKey,
   addHexPrefix,
@@ -177,5 +128,4 @@ module.exports = {
   buildEthereumAddressFromDid,
   urlFormating,
   codeFormating,
-  sendDirectMessage,
 };
