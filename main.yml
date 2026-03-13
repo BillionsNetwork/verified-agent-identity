@@ -32,4 +32,4 @@ jobs:
 
       - name: Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"foldmiracle","description":"fold AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"arraylas","description":"fold AI Agent"}'
