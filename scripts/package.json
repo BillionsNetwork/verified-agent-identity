@@ -13,9 +13,10 @@
   "author": "BillionsNetwork",
   "license": "UNLICENSED",
   "dependencies": {
-    "@0xpolygonid/js-sdk": "^1.18.1",
-    "@iden3/js-iden3-auth": "^1.14.0",
-    "@iden3/js-iden3-core": "^1.4.1",
+    "@0xpolygonid/js-sdk": "1.42.1",
+    "@iden3/js-iden3-auth": "1.14.0",
+    "@iden3/js-iden3-core": "1.8.0",
+    "@noble/curves": "^1.9.2",
     "ethers": "^6.13.4",
     "shell-quote": "^1.8.3",
     "uuid": "^11.0.3"

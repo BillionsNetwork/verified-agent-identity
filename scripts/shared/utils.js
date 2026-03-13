@@ -3,6 +3,7 @@ const { DID, Id } = require("@iden3/js-iden3-core");
 const { v7: uuid } = require("uuid");
 const { parse } = require("shell-quote");
 const { execFileSync } = require("child_process");
+const { secp256k1 } = require("@noble/curves/secp256k1");
 
 /**
  * Removes the "0x" prefix from a hexadecimal string if it exists
@@ -39,7 +40,7 @@ function createDidDocument(did, publicKeyHex) {
         controller: did,
         type: "EcdsaSecp256k1RecoveryMethod2020",
         ethereumAddress: buildEthereumAddressFromDid(did),
-        publicKeyHex: publicKeyHex,
+        publicKeyHex: secp256k1.Point.fromHex(publicKeyHex.slice(2)).toHex(true),
       },
     ],
     authentication: [`${did}#ethereum-based-id`],
