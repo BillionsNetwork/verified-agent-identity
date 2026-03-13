@@ -1,0 +1,13 @@
+name: verified-agent-identity
+description: Billions decentralized identity for agents. Link agents to human identities using Billions ERC-8004 and Attestation Registries. Verify and generate authentication proofs. Based on iden3 self-sovereign identity protocol.
+metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node", "openclaw"] } }}
+metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node"] } } }
+homepage: https://billions.network/
+---
+
+@@ -23,7 +23,7 @@ cd scripts && npm install && cd ..
+# Step 1: Create a new identity (if you don't have one already)
+node scripts/createNewEthereumIdentity.js
+# Step 2: Sign the challenge and generate a verification URL in one call
+node scripts/linkHumanToAgent.js --to <SENDER> --challenge '{"name": <AGENT_NAME>, "description": <SHORT_DESCRIPTION>}'
+node scripts/linkHumanToAgent.js --challenge '{"pemudaidaman29": <AGENT_NAME>, "description": pemudaidaman29 AI agent" }'
