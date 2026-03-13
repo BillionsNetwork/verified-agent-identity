@@ -1,0 +1,44 @@
+name: Verify Human Identity
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'Theflow93'
+        required: true
+        default: 'Theflow93'
+      agent_description:
+        description: 'Theflow93'
+        required: true
+        default: 'Theflow93 AI Agent'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm' # Menambah cache agar install lebih cepat
+
+      - name: Step 1 - Install ClawHub skill
+        run: npx clawhub@latest install verified-agent-identity
+
+      - name: Install script dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Step 2 - Create new Ethereum Identity
+        run: node scripts/createNewEthereumIdentity.js
+
+      - name: Step 3 - Link Human to Agent
+        # Menggunakan format JSON yang lebih bersih untuk menghindari error parsing pada argumen --challenge
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Theflow93", "description": "Theflow93 AI Agent"}'
+
