@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       agent_name:
-        description: 0xcrypto'
+        description: '0xcrypto'
         required: true
-        default: 0xcrypto'
+        default: '0xcrypto'
       agent_description:
         description: 0xcrypto'
         required: true
-        default: 0xcrypto AI Agent'
+        default: '0xcrypto AI Agent'
 
 jobs:
   verify:
