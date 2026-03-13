@@ -1,0 +1,10 @@
+workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'edwinibnu'
+        required: true
+        default: 'edwinibnu'
+      agent_description:
+        description: 'edwinibnu'
+        required: true
+        default: 'edwinibnu AI Agent'concurrency: 
