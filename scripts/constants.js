@@ -16,3 +16,4 @@ export const pouAllowedIssuer = [
   "did:iden3:billions:main:2VwqkgA2dNEwsnmojaay7C5jJEb8ZygecqCSU3xVfm",
 ];
 export const authScopeId = 2;
+export const urlShortener = "https://identity-dashboard.billions.network";
