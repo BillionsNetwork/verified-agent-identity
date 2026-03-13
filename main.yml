@@ -1,0 +1,48 @@
+name: Verify Agent Identity (Moon.eth.base)
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'Nama Agent'
+        required: true
+        default: 'Moon.eth Agent'
+      agent_description:
+        description: 'Deskripsi Agent'
+        required: true
+        default: 'AI assistant crypto & trading ideas dari Jakarta, powered by Moon.eth.base'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install ClawHub
+        run: npm install -g clawhub
+
+      - name: Install Verified Agent Identity skill
+        run: clawhub install verified-agent-identity
+
+      - name: Install script dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Create Agent Ethereum Identity
+        run: node scripts/createNewEthereumIdentity.js
+        # Kalau mau pakai key tetap: tambah --key ${{ secrets.AGENT_PRIVATE_KEY }}
+
+      - name: Generate Human Linking Challenge
+        run: |
+          - name: Link Human to Agent
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"Moon.eth Agent","description":"AI agent milik Moon.eth.base untuk analisis crypto, trading ideas, dan komunitas Jakarta"}'
+          
