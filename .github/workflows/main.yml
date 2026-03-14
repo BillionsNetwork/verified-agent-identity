@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: fatrick0q
         uses: actions/checkout@v3
 
       - name: Setup Node.js
