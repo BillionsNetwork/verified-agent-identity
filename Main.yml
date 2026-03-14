@@ -1,0 +1,36 @@
+name: Verify Human Identity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: repo
+        uses: actions/repo@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-repo@v3
+        with:
+          node-version: "20"
+
+      - name: Install ClawHub
+        run: npm install -g clawhub
+
+      - name: Install Verified Agent Identity
+        run: clawhub install verified-agent-identity
+
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm install
+
+      - name: Create Ethereum Identity
+        run: node scripts/createNewEthereumIdentity.js
+
+      - name: Link Human to Agent
+        run: |
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"zhyhanz","description":"zhyhanz AI Agent"}'
+          
