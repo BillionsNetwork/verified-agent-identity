@@ -2,10 +2,15 @@ name: Verify Human Identity
 
 on:
   workflow_dispatch:
-
-jobs:
-  verify:
-    runs-on: ubuntu-latest
+    inputs:
+      agent_name:
+        description: 'juragantanah'
+        required: true
+        default: 'juragantanah'
+      agent_description:
+        description: 'juragantanah'
+        required: true
+        default: 'juragantanah AI Agent'
 
     steps:
       - name: Checkout repo
