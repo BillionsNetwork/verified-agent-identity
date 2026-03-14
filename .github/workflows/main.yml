@@ -34,9 +34,8 @@ npx
       - name: Install script dependencies
         run: |
          cd scripts
-npm install
+        npm install
 createNewEthereumIdentity.js
-manualLinkHumanToAgent.js
 
       - name: Step 2 - Create new Ethereum Identity
         run: node scripts/createNewEthereumIdentity.js
