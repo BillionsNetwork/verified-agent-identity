@@ -51,7 +51,7 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 3. Generate a verification link to connect your human identity to the agent:
 
    ```bash
-   node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Agent Name", "description": "Short description of the agent"}'
+   node scripts/manualLinkHumanToAgent.js --challenge '{"Bezzo3690": "Bezzo3690", "description": "Short description of the agent"}'
    ```
 
    This prints the verification URL to the console. Open it in your browser to complete the identity linking process.
@@ -161,7 +161,7 @@ _Option 2 — shell or process environment:_
 ```bash
 export BILLIONS_NETWORK_MASTER_KMS_KEY="<your-strong-secret>"
 node scripts/createNewEthereumIdentity.js
-node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Agent Name", "description": "Short description of the agent"}'
+node scripts/manualLinkHumanToAgent.js --challenge '{"Bezzo3690": "Bezzo3690", "description": "Short description of the agent"}'
 ```
 
 For all other ways to pass environment variables to a skill see the [OpenClaw environment documentation](https://docs.openclaw.ai/help/environment).
