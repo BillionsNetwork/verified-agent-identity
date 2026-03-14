@@ -33,3 +33,4 @@ jobs:
       - name: Link Human to Agent
         run: |
           node scripts/manualLinkHumanToAgent.js --challenge '{"rtantan888":"rtantan888","description":"rtantan888 AI Agent"}'
+0xA8b069B222B749E07ABbF8652250E7cbDB62028B
