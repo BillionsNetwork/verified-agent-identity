@@ -38,4 +38,4 @@ jobs:
 
       - name: Step 3 - Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "DandiMarily", "description": "lokie AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "DandiMarily", "description": "DandiMarily AI Agent"}'
