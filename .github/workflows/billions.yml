@@ -1,4 +1,4 @@
- workflow_dispatch:name: Billions Agent Workflow
+name: Billions Agent Workflow
 
 on:
   push:
