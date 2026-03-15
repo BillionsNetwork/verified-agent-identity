@@ -1,0 +1,31 @@
+name: Billions Agent Workflow
+
+on:
+  push:
+    branches: [ main ]
+
+  schedule:
+    - cron: "0 */6 * * *"   # Runs every 6 hours
+
+  workflow_dispatch:        # Allows manual run
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Billions Agent
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+        run: node agent.js
