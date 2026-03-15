@@ -2,30 +2,33 @@ name: Billions Agent Workflow
 
 on:
   push:
-    branches: [ main ]
-
-  schedule:
-    - cron: "0 */6 * * *"   # Runs every 6 hours
-
-  workflow_dispatch:        # Allows manual run
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  run-agent:
+  billions-agent:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [24]
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Run Billions Agent
-        env:
-          API_KEY: ${{ secrets.API_KEY }}
-        run: node agent.js
+      - name: Run tests
+        run: npm test
+
+      - name: Start Billions Agent
+        run: node index.js
