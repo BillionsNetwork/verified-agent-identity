@@ -32,4 +32,4 @@ jobs:
 
       - name: Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"billwatch":"shutup","fiolla":"Billwatch AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"Biose-dot","description":"Biose-dot AI Agent"}'
