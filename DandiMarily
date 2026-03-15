@@ -8,7 +8,7 @@ on:
         required: true
         default: 'DandiMarily'
       agent_description:
-        description: 'lokie'
+        description: 'DandiMarily'
         required: true
         default: 'DandiMarily AI Agent'
 
