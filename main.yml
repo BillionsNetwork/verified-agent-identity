@@ -32,8 +32,8 @@ jobs:
 
       - name: Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"fadel1423","description":"fadel1423 AI Agent"}' 
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"fadel1423","description":"fadel1423 AI Agent"}'  
 
 
 
-setelah }` klik tombol space
+
