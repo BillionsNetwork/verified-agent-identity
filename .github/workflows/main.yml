@@ -1,4 +1,3 @@
-
 name: Verify Human Identity
 
 on:
@@ -31,8 +30,7 @@ jobs:
 
       - name: Install script dependencies
         run: |
-          cd scripts
-          npm install
+        cd scripts npm install
 
       - name: Step 2 - Create new Ethereum Identity
         run: node scripts/createNewEthereumIdentity.js
