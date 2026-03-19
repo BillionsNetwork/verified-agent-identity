@@ -1,0 +1,60 @@
+name: Verify Human Identity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      DEBUG: true
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Debug Environment
+        run: |
+          echo "Node version:"
+          node -v
+          echo "NPM version:"
+          npm -v
+
+      - name: Debug ClawHub availability
+        run: |
+          echo "Checking clawhub..."
+          npx clawhub@latest --version || echo "ClawHub not available"
+
+      - name: Install ClawHub (latest)
+        id: install_latest
+        run: |
+          echo "Trying latest version..."
+          npx clawhub@latest test install verified-agent-identity \
+          && echo "status=success" >> $GITHUB_OUTPUT \
+          || echo "status=failed" >> $GITHUB_OUTPUT
+
+      - name: Fallback install (stable version)
+        if: steps.install_latest.outputs.status == 'failed'
+        run: |
+          echo "Fallback ke versi stabil..."
+          npx clawhub@0.1.0 test install verified-agent-identity
+
+      - name: Verify installation
+        run: |
+          echo "Verifying installation..."
+          if npx clawhub --help; then
+            echo "SUCCESS: ClawHub ready"
+          else
+            echo "FAILED: ClawHub not working"
+            exit 1
+          fi
+
+      - name: Final Status
+        run: echo "Workflow selesai"
