@@ -8,7 +8,7 @@ on:
         required: true
         default: 'fitriaaufa10'
       agent_description:
-        description: 'finder'
+        description: 'fitriaaufa10'
         required: true
         default: 'fitriaaufa10 AI Agent'
 
