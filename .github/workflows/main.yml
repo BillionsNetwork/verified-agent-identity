@@ -1,14 +1,14 @@
-name: Verify Human Identity
+name: Verify AI Agent Identity
 
 on:
   workflow_dispatch:
     inputs:
       agent_name:
-        description: 'theflow21'
+        description: 'Nama Agent'
         required: true
         default: 'theflow21'
       agent_description:
-        description: 'theflow21'
+        description: 'Deskripsi Agent'
         required: true
         default: 'theflow21 AI Agent'
 
@@ -18,24 +18,25 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Update ke v4 (lebih stabil/cepat)
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Update ke v4
         with:
           node-version: '20'
+          cache: 'npm' # Mengaktifkan caching agar lebih cepat di run berikutnya
 
       - name: Step 1 - Install ClawHub skill
         run: npx clawhub@latest install verified-agent-identity
 
       - name: Install script dependencies
-        run: |
-          cd scripts
-          npm install
+        working-directory: ./scripts # Menggunakan working-directory lebih aman daripada 'cd'
+        run: npm install
 
       - name: Step 2 - Create new Ethereum Identity
         run: node scripts/createNewEthereumIdentity.js
 
       - name: Step 3 - Link Human to Agent
+        # Gunakan variabel dari inputs agar dinamis, bukan hardcoded string
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "theflow21", "description": "theflow21 AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge "{\"name\": \"${{ github.event.inputs.agent_name }}\", \"description\": \"${{ github.event.inputs.agent_description }}\"}"
