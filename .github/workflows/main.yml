@@ -4,39 +4,83 @@ on:
   workflow_dispatch:
     inputs:
       agent_name:
-        description: 'Nama Agent'
+        description: "Nama Agent"
         required: true
-        default: 'theflow21'
+        default: "theflow21"
       agent_description:
-        description: 'Deskripsi Agent'
+        description: "Deskripsi Agent"
         required: true
-        default: 'theflow21 AI Agent'
+        default: "theflow21 AI Agent"
 
 jobs:
   verify:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout
       - name: Checkout repo
-        uses: actions/checkout@v4 # Update ke v4 (lebih stabil/cepat)
+        uses: actions/checkout@v4
 
+      # 2. Setup Node
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # Update ke v4
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm' # Mengaktifkan caching agar lebih cepat di run berikutnya
+          node-version: "20"
+          cache: "npm"
 
-      - name: Step 1 - Install ClawHub skill
-        run: npx clawhub@latest install verified-agent-identity
-
-      - name: Install script dependencies
-        working-directory: ./scripts # Menggunakan working-directory lebih aman daripada 'cd'
-        run: npm install
-
-      - name: Step 2 - Create new Ethereum Identity
-        run: node scripts/createNewEthereumIdentity.js
-
-      - name: Step 3 - Link Human to Agent
-        # Gunakan variabel dari inputs agar dinamis, bukan hardcoded string
+      # 3. Debug basic info (penting untuk troubleshooting)
+      - name: Debug Environment
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge "{\"name\": \"${{ github.event.inputs.agent_name }}\", \"description\": \"${{ github.event.inputs.agent_description }}\"}"
+          node -v
+          npm -v
+          pwd
+          ls -la
+
+      # 4. Install ClawHub (pakai retry biar gak random fail)
+      - name: Step 1 - Install ClawHub skill
+        run: |
+          npx clawhub@latest install verified-agent-identity || \
+          (echo "Retry install ClawHub..." && sleep 5 && npx clawhub@latest install verified-agent-identity)
+
+      # 5. Install dependencies (dengan fallback kalau scripts tidak ada)
+      - name: Install script dependencies
+        run: |
+          if [ -d "scripts" ]; then
+            cd scripts
+            npm install
+          else
+            echo "No scripts folder found, skipping install"
+          fi
+
+      # 6. Create Ethereum Identity (dengan error handling)
+      - name: Step 2 - Create new Ethereum Identity
+        run: |
+          if [ -f "scripts/createNewEthereumIdentity.js" ]; then
+            node scripts/createNewEthereumIdentity.js
+          else
+            echo "Script createNewEthereumIdentity.js not found"
+            exit 1
+          fi
+
+      # 7. Link Human to Agent (FIX JSON quoting issue)
+      - name: Step 3 - Link Human to Agent
+        env:
+          AGENT_NAME: ${{ github.event.inputs.agent_name }}
+          AGENT_DESC: ${{ github.event.inputs.agent_description }}
+        run: |
+          if [ -f "scripts/manualLinkHumanToAgent.js" ]; then
+            node scripts/manualLinkHumanToAgent.js --challenge "$(jq -n \
+              --arg name "$AGENT_NAME" \
+              --arg description "$AGENT_DESC" \
+              '{name: $name, description: $description}')"
+          else
+            echo "Script manualLinkHumanToAgent.js not found"
+            exit 1
+          fi
+
+      # 8. Optional fallback log kalau gagal
+      - name: Debug on failure
+        if: failure()
+        run: |
+          echo "Workflow failed. Printing directory:"
+          ls -R
