@@ -1,0 +1,55 @@
+name: Verify Human Identity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify-identity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install ClawHub CLI
+        run: npm install -g clawhub
+
+      - name: 🤖 Install Verified Agent Identity Package
+        run: clawhub install verified-agent-identity
+
+      - name: 📂 Install Script Dependencies
+        run: |
+          if [ -d "scripts" ]; then
+            cd scripts
+            npm install
+          else
+            echo "❌ Folder 'scripts' tidak ditemukan!"
+            exit 1
+          fi
+
+      - name: 🪪 Create Ethereum Identity
+        run: |
+          if [ -f "scripts/createNewEthereumIdentity.js" ]; then
+            node scripts/createNewEthereumIdentity.js
+          else
+            echo "❌ File createNewEthereumIdentity.js tidak ditemukan!"
+            exit 1
+          fi
+
+      - name: 🔗 Link Human to Agent
+        run: |
+          if [ -f "scripts/manualLinkHumanToAgent.js" ]; then
+            node scripts/manualLinkHumanToAgent.js --challenge '{"name":"iashauzora","description":"Verified AI Agent"}'
+          else
+            echo "❌ File manualLinkHumanToAgent.js tidak ditemukan!"
+            exit 1
+          fi
+
+      - name: ✅ Done
+        run: echo "🎉 Verification process completed!"
