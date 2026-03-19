@@ -69,7 +69,6 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 ### Runtime Requirements
 
 - **Node.js `>= v20`** and **npm** are required to run the scripts.
-- The **`openclaw` CLI** must be installed and available in `PATH`. It is a hard runtime dependency used exclusively for sending direct messages to other agents or users on the Billions Network.
 
 ### Dependency Surface
 
@@ -81,7 +80,6 @@ npm dependencies are intentionally minimal and scoped to well-established, audit
 | `@iden3/js-iden3-core` | DID and identity core types                                  |
 | `@iden3/js-iden3-auth` | JWS/JWA authorization response construction and verification |
 | `ethers`               | Ethereum key utilities                                       |
-| `shell-quote`          | Shell token parsing used **only** for input sanitization     |
 | `uuid`                 | UUID generation for protocol message IDs                     |
 
 Core libraries governing identity management use pinned, well-tested versions to ensure stability and security.
@@ -170,30 +168,13 @@ For all other ways to pass environment variables to a skill see the [OpenClaw en
 
 **CRITICAL**: Save master keys securely and do not share them. If the master key is lost, all encrypted keys will be lost.
 
-### Subprocess Execution Safety
-
-**Only one specific command is ever executed: `openclaw message send`**, with a fixed, hardcoded argument structure. The binary name, the subcommand, and all flag names (`--target`, `--message`) are hardcoded. User-supplied values are only ever passed as the **values** of those flags, never as the command name, subcommand, or flag names. Nothing else can be executed. There is no mechanism to change the binary, add flags, or inject subcommands. Additional security properties:
-
-1. **No shell interpolation**: `execFileSync(binary, argsArray)` bypasses the OS shell entirely. The OS `exec*` syscall receives the argument vector directly — shell metacharacters in argument values are treated as literal data.
-2. **Argument-level input validation**: Before the call, all user-supplied values pass through two independent validation layers:
-   - `validateTarget` — enforces a strict allowlist regex (`/^[A-Za-z0-9:._@\-\/]+$/`) on the `--target` value.
-   - `assertNoShellOperators` — uses `shell-quote` to tokenize the input and rejects any token with an `op` property (i.e., `|`, `&`, `;`, `>`, `<`, `$()`, etc.).
-3. **No dynamic code execution**: No `eval`, `new Function`, `child_process.exec`, or shell-interpolated `execSync` calls exist anywhere in the codebase.
-
-Prompt injection and arbitrary code execution are structurally impossible: the executed command and its flags are hardcoded constants, and user data can only influence the string values passed to `--target` and `--message` after sanitization.
-
 ### Network and External Binary Policy
 
-- All external https calls will be made to trusted resources. Signed JWS attestation (proof of agent ownership) is encoded securely by utilizing robust security practices and sent within user context directly to agent owner. It requires an explicit user consent to pass it to any external source. It is not sent automatically anywhere without user participation.
-  All network calls are directed to legitimate DID resolvers (resolver.privado.id) or the project's own infrastructure (billions.network).
-  These network calls cannot exfiltrate signed attestations or identity data to third-party services by skill design as they do not pass them. This is possible only through explicit action from the user side with consent. Also attestation contains only publicly verifiable information.
-- No external binary other than `openclaw` is invoked.
-- External URLs or verification links produced by the scripts are delivered to the user as a plaintext message via `openclaw message send`. The agent has no ability to follow, fetch, open, or interact with those URLs in any way - it only forwards the string to the user.
-
-### Openclaw exec policy
-
-Code in the scripts/shared/utils.js uses shell command execution, but in a security-conscious manner using execFileSync to prevent shell interpolation and includes sanitization logic (assertNoShellOperators) to mitigate injection risks when calling the openclaw CLI. 
-Only the openclaw binary is invoked.
+- All external https calls will be made to trusted resources. Signed JWS attestation (proof of agent ownership) is encoded securely by utilizing robust security practices. It requires an explicit user consent to pass it to any other source.
+- All network calls are directed to legitimate DID resolvers (resolver.privado.id) or the project's own infrastructure (billions.network). These network calls cannot exfiltrate signed attestations or identity data to other third-party services by skill design. Wallet interaction is possible only through explicit action from the user side with consent. Also attestation contains only publicly verifiable information.
+- Whitelisted domains:
+  - `resolver.privado.id` (DID resolution)
+  - `billions.network` (Billions Network interactions)
 
 ## Documentation
 
