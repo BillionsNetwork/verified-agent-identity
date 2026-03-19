@@ -33,4 +33,4 @@ jobs:
 
       - name: Link Human to Agent
         run: |
-          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"naomi448","description":"naomi448 AI Agent"}'
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name":"naomi448","description":"naomi448 AI Agent"}' 
