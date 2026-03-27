@@ -50,13 +50,13 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 
    ```bash
    npx skills add BillionsNetwork/verified-agent-identity
-   ```
+   ```BinbamudB
 2. Create a new identity:
 
-   ```bash
+   ```b
    # Generate a new key and create a new identity
    node scripts/createNewEthereumIdentity.js
-   ```
+   ```BinbamudB
 
    Or
 
@@ -69,7 +69,7 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 
    ```bash
    node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Agent Name", "description": "Short description of the agent"}'
-   ```
+   ```BinbamudB
 
    This prints the verification URL to the console. Open it in your browser to complete the identity linking process.
 
