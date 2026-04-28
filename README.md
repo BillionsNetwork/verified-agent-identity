@@ -8,7 +8,7 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 
 ## Installation
 
-### Agent CTA:
+### Agent CTA:riansyah
 
 1. Ask bot to install the skill:
 
@@ -28,7 +28,7 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
    Please link your agent identity to me.
    ```
 
-### Human CTA:
+### Human CTA:riansyah
 
 1. Install the skill:
    ```bash
