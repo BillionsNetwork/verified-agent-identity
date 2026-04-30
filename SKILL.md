@@ -1,7 +1,7 @@
 ---
 name: verified-agent-identity
 description: Billions decentralized identity for agents. Link agents to human identities using Billions ERC-8004 and Attestation Registries. Verify and generate authentication proofs. Based on iden3 self-sovereign identity protocol.
-metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node"] } } }
+metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node"] }, "config": { "optionalEnv": ["BILLIONS_NETWORK_MASTER_KMS_KEY"] } } }
 homepage: https://billions.network/
 ---
 

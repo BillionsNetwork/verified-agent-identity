@@ -12,15 +12,23 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 
 1. Ask bot to install the skill:
 
-   ```plaintext
-   Install the skill `npx clawhub@latest install verified-agent-identity`
-   ```
+    Install with clawhub:
 
-   Or
+    ```plaintext
+    Install the skill `npx clawhub@latest install verified-agent-identity`
+    ```
 
-   ```plaintext
-   Install the `verified-agent-identity` skill from the OpenClaw clawhub.ai.
-   ```
+    Or install with skills.sh:
+
+    ```plaintext
+    Intall the skill `npx skills add BillionsNetwork/verified-agent-identity`
+    ```
+
+    Or
+
+    ```plaintext
+    Install the `verified-agent-identity` skill from the OpenClaw clawhub.ai.
+    ```
 
 2. (Optional) If the verification process did not start automatically after installation, ask your bot to initialize the process by sending a message like:
 
@@ -31,8 +39,17 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 ### Human CTA:
 
 1. Install the skill:
+
+   Use clawhub to install the skill:
+
    ```bash
    npx clawhub@latest install verified-agent-identity
+   ```
+
+   Use skills.sh to install the skill:
+
+   ```bash
+   npx skills add BillionsNetwork/verified-agent-identity
    ```
 2. Create a new identity:
 
