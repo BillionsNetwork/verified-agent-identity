@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+
+# Learn more about building a configuration: https://promptfoo.dev/docs/configuration/guide
+
+description: "verified-agent-identity skill eval"
+
+defaultTest:
+  vars:
+    system_message: "file://SKILL.md"
+
+prompts:
+  - file://prompt.json
+
+providers:
+  - id: google:gemini-flash-lite-latest
+    config:
+      showThinking: false # Exclude thinking content from output
+
+tests:
+  - description: "[Chat flow] Step 1: List identities"
+    vars:
+      message: "List my agent identities"
+    metadata:
+      conversationId: pairing-flow
+    assert:
+      - type: icontains
+        value: "getIdentities"
+
+  - description: "[Chat flow] Step 2: Create a new identity"
+    vars:
+      message: "Create a new identity"
+    metadata:
+      conversationId: pairing-flow
+    assert:
+      - type: icontains
+        value: "createNewEthereumIdentity"
+
+  - description: "[Chat flow] Step 3: Generate pairing link (agent checks identity first)"
+    vars:
+      message: "Generate a pairing link for my agent"
+    metadata:
+      conversationId: pairing-flow
+    assert:
+      - type: contains-any
+        value: ["getIdentities", "createNewEthereumIdentity", "linkHumanToAgent"]
+
+  - description: "[Chat flow] Step 4: Feed identity result, assert pairing link created"
+    vars:
+      message: |
+        Tool output: [{"did":"did:iden3:readonly:test:abc123","isDefault":true}]
+    metadata:
+      conversationId: pairing-flow
+    assert:
+      - type: icontains
+        value: "linkHumanToAgent"

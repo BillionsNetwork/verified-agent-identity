@@ -1,0 +1,65 @@
+name: Evaluate Skill
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install promptfoo
+        run: npm install -g promptfoo
+
+      - name: Run promptfoo eval
+        run: promptfoo eval --no-cache --output results.json
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-results
+          path: results.json
+
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "### Promptfoo Skill Evaluation" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f results.json ]; then
+            PASS=$(jq '[.results.results[] | select(.success == true)] | length' results.json)
+            FAIL=$(jq '[.results.results[] | select(.success == false)] | length' results.json)
+            TOTAL=$((PASS + FAIL))
+            echo "- Passed: $PASS" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Failed: $FAIL" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Total:  $TOTAL" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$TOTAL" -gt 0 ]; then
+              # Use awk for floating-point: success rate as integer percentage
+              RATE=$(awk "BEGIN { printf \"%d\", ($PASS / $TOTAL) * 100 }")
+              echo "- Success rate: ${RATE}%" >> "$GITHUB_STEP_SUMMARY"
+              if [ "$RATE" -lt 95 ]; then
+                echo "::error::Success rate ${RATE}% is below the 95% threshold (${PASS}/${TOTAL} passed)"
+                exit 1
+              fi
+            else
+              echo "- No tests found in results.json" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+          else
+            echo "- results.json not found" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
