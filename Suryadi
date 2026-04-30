@@ -36,4 +36,4 @@ jobs:
       - name: Step 2 - Link Human to Agent
         run: |
           node scripts/manualLinkHumanToAgent.js \
-          --challenge "{\"name\":suryadi{ github.event.inputs.agent_name }}\", \"description\": \"${{ github.event.inputs.agent_description }}\"}"
+          --challenge "{\"name\":suryadi{ github.event.inputs.agent_name }}\", \"description\"suryadi: \"${{ github.event.inputs.agent_description }}\"}"
