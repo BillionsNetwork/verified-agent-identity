@@ -1,0 +1,2 @@
+npx clawhub@latest install verified-agent-identity
+npx clawhub@latest list
