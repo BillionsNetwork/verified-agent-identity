@@ -1,0 +1,26 @@
+name: Verify Human Identity
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Verified Agent Skill
+        run: |
+          npx clawhub@latest install verified-agent-identity
+          cd scripts
+          npm install
+
+      - name: Create Identity & Generate Reward Link
+        run: |
+          node scripts/createNewEthereumIdentity.js
+          node scripts/manualLinkHumanToAgent.js --challenge '{"binbamud": "precious work", "description": "billions work and precious production in Ethiopia"}'
