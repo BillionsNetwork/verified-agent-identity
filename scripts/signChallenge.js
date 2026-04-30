@@ -12,8 +12,6 @@ const {
   createDidDocument,
   getAuthResponseMessage,
   buildEthereumAddressFromDid,
-  sendDirectMessage,
-  codeFormating,
 } = require("./shared/utils");
 const { buildJsonAttestation } = require("./shared/attestation");
 
@@ -53,10 +51,10 @@ async function main() {
   try {
     const args = parseArgs();
 
-    if (!args.to || !args.challenge) {
-      console.error("Error: --to and --challenge are required");
+    if (!args.challenge) {
+      console.error("Error: --challenge are required");
       console.error(
-        "Usage: node scripts/signChallenge.js --to <sender> --challenge <challenge> [--did <did>]",
+        "Usage: node scripts/signChallenge.js --challenge <challenge> [--did <did>]",
       );
       process.exit(1);
     }
@@ -79,9 +77,7 @@ async function main() {
     const challenge = JSON.parse(args.challenge);
     const tokenString = await signChallenge(challenge, entry, kms);
 
-    sendDirectMessage(args.to, tokenString, codeFormating);
-
-    outputSuccess({ success: true });
+    outputSuccess({ success: true, data: { token: tokenString } });
   } catch (error) {
     console.error(formatError(error));
     process.exit(1);
