@@ -1,4 +1,4 @@
-name: Evaluate Skill
+. name: Evaluate Skill
 
 on:
   push:
