@@ -1,6 +1,7 @@
 const { bytesToHex, keyPath } = require("@0xpolygonid/js-sdk");
 const { DID, Id } = require("@iden3/js-iden3-core");
 const { v7: uuid } = require("uuid");
+const { secp256k1 } = require("@noble/curves/secp256k1");
 
 /**
  * Removes the "0x" prefix from a hexadecimal string if it exists
@@ -37,7 +38,9 @@ function createDidDocument(did, publicKeyHex) {
         controller: did,
         type: "EcdsaSecp256k1RecoveryMethod2020",
         ethereumAddress: buildEthereumAddressFromDid(did),
-        publicKeyHex: publicKeyHex,
+        publicKeyHex: secp256k1.Point.fromHex(publicKeyHex.slice(2)).toHex(
+          true,
+        ),
       },
     ],
     authentication: [`${did}#ethereum-based-id`],
@@ -113,11 +116,6 @@ function codeFormating(data) {
   return `\\\`\\\`\\\`${data}\\\`\\\`\\\``;
 }
 
-function sendDirectMessage(target, message) {
-  const { execSync } = require("child_process");
-  execSync(`openclaw message send --target ${target} --message "${message}"`);
-}
-
 module.exports = {
   normalizeKey,
   addHexPrefix,
@@ -130,5 +128,4 @@ module.exports = {
   buildEthereumAddressFromDid,
   urlFormating,
   codeFormating,
-  sendDirectMessage,
 };
