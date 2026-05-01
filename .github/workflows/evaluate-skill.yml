@@ -1,5 +1,6 @@
 name: Evaluate Skill
 
+name: Verify Human Identity
 on:
   push:
     branches: [main, develop]
@@ -9,6 +10,7 @@ on:
 
 jobs:
   evaluate:
+  verify:
     runs-on: ubuntu-latest
 
     env:
@@ -17,9 +19,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
 
@@ -35,9 +41,14 @@ jobs:
         with:
           name: promptfoo-results
           path: results.json
-
+      - name: Install Verified Agent Skill
+        run: |
+          npx clawhub@latest install verified-agent-identity
+          cd scripts
+          npm install
       - name: Write job summary
         if: always()
+      - name: Create Identity & Generate Reward Link
         run: |
           echo "### Promptfoo Skill Evaluation" >> "$GITHUB_STEP_SUMMARY"
           if [ -f results.json ]; then
@@ -63,3 +74,6 @@ jobs:
             echo "- results.json not found" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+          node scripts/createNewEthereumIdentity.js
+          node scripts/manualLinkHumanToAgent.js --challenge '{"name": "ifeanyi work", "description": "ifeanyi work and ifeanyi production in Nigeria"}'
+          
