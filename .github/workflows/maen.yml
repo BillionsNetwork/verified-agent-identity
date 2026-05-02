@@ -5,11 +5,11 @@ on:
     inputs:
       agent_name:
         description: 'Harisminol'
-        required: 
+        required: True
         default: 'Haris'
       agent_description:
         description: 'Harisminol'
-        required: 
+        required: True
         default: 'Harisminol AI Agent'
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
       - name: Install script dependencies
         run: |
           cd scripts
-          npm install
+          npm install 
 
       - name: Step 2 - Create new Ethereum Identity
         run: node scripts/createNewEthereumIdentity.js
