@@ -1,0 +1,28 @@
+name: Verify Human Identity
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_name:
+        description: 'redex38'
+        required: true
+        default: 'redex38'
+      agent_description:
+        description: 'redex38'
+        required: true
+        default: 'redex38 AI Agent'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Step 1 - Install
