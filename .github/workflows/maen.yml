@@ -5,11 +5,11 @@ on:
     inputs:
       agent_name:
         description: 'Harisminol'
-        required: true
+        required: 
         default: 'Haris'
       agent_description:
         description: 'Harisminol'
-        required: true
+        required: 
         default: 'Harisminol AI Agent'
 
 jobs:
