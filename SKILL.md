@@ -1,7 +1,7 @@
 ---
 name: verified-agent-identity
 description: Billions decentralized identity for agents. Link agents to human identities using Billions ERC-8004 and Attestation Registries. Verify and generate authentication proofs. Based on iden3 self-sovereign identity protocol.
-metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node"] } } }
+metadata: { "category": "identity", "clawdbot": { "requires": { "bins": ["node"] }, "config": { "optionalEnv": ["BILLIONS_NETWORK_MASTER_KMS_KEY"] } } }
 homepage: https://billions.network/
 ---
 
@@ -129,12 +129,12 @@ node scripts/linkHumanToAgent.js --challenge '{"name": "MyAgent", "description":
 
 ### verifySignature.js
 
-**Command**: `node scripts/verifySignature.js --did <did> --token <token>`
+**Command**: `node scripts/verifySignature.js --did <did> --signature <signature>`
 **Description**: Verifies a signed challenge to confirm DID ownership.
 **Usage Example**:
 
 ```bash
-node scripts/verifySignature.js --did did:iden3:billions:main:2VmAk... --token eyJhbGciOiJFUzI1NkstUi...
+node scripts/verifySignature.js --did did:iden3:billions:main:2VmAk... --signature eyJhbGciOiJFUzI1NkstUi...
 ```
 
 **Output**: `Signature verified successfully` (on success) or error message (on failure)
@@ -203,7 +203,7 @@ Agent: exec node scripts/linkHumanToAgent.js --challenge <challenge_value>
 3. Use `node scripts/generateChallenge.js --did <user_did>` to create a <challenge_value>.
 4. Ask the user: "Please sign this challenge: <challenge_value>"
 5. User signs and returns <user_token>.
-6. Use `node scripts/verifySignature.js --did <user_did> --token <user_token>` to verify the signature
+6. Use `node scripts/verifySignature.js --did <user_did> --signature <signature>` to verify the signature
 7. If verification succeeds, identity is confirmed
 
 **Example Conversation:**
@@ -214,6 +214,6 @@ User: "My DID is <user_did>"
 Agent: exec node scripts/generateChallenge.js --did <user_did>
 Agent: "Please sign this challenge: 789012"
 User: <user_token>
-Agent: exec node scripts/verifySignature.js --token <user_token> --did <user_did>
+Agent: exec node scripts/verifySignature.js --signature <signature> --did <user_did>
 Agent: "Identity verified successfully. You are confirmed as owner of DID <user_did>."
 ```
