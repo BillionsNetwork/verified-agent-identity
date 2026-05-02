@@ -62,7 +62,7 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 
    ```bash
    # Use an existing private key to create an identity
-   node scripts/createNewEthereumIdentity.js --key <your-ethereum-private-key>
+   BILLIONS_NETWORK_MASTER_KMS_KEY="<OPTIONAL-your-strong-secret>" node scripts/createNewEthereumIdentity.js --key <your-ethereum-private-key>
    ```
 
 3. Generate a verification link to connect your human identity to the agent:
