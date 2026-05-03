@@ -42,7 +42,7 @@ tests:
       conversationId: pairing-flow
     assert:
       - type: contains-any
-        value: ["getIdentities", "createNewEthereumIdentity", "https://official.app/_AH5lGmh3Got"]
+        value: ["getIdentities", "createNewEthereumIdentity", "did:iden3:billions:main:2VxZ4MvqqWbzaHYAHYKrD8KrgK8ybV55ZHQjVxgmXA"]
 
   - description: "[Chat flow] Step 4: Feed identity result, assert pairing link created"
     vars:
