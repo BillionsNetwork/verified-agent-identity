@@ -1,0 +1,3 @@
+npx clawhub@latest install verified-agent-identity
+# Generate a new key and create a new identity node scripts/createNewEthereumIdentity.js
+node scripts/manualLinkHumanToAgent.js --challenge '{'name': 'kcuan40', 'description': 'Short description of the agent'}'
