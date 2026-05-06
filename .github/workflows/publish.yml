@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install clawhub CLI
+        run: npm install -g clawhub
+
       - name: Login to OpenClaw Hub
         run: clawhub login --token ${{ secrets.CLAWHUB_TOKEN }}
 
