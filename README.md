@@ -122,8 +122,6 @@ There are several ways of storing private keys, to enable master key encryption 
 
 ### KMS Encryption
 
-> **Note**: Without `BILLIONS_NETWORK_MASTER_KMS_KEY`, private keys are stored as **raw plaintext hex** on disk. Setting this variable before creating or importing any key is strongly recommended for all deployments.
-
 > See [SECURITY.md](SECURITY.md) for the full threat model, the rationale for shipping a plaintext storage mode, and the operator hardening checklist.
 
 Set the environment variable `BILLIONS_NETWORK_MASTER_KMS_KEY` to enable AES-256-GCM at-rest encryption for the private keys inside `kms.json`. When set, every key value is individually encrypted on write; when absent, keys are stored as plain hex strings.
