@@ -12,6 +12,7 @@ Handle `402 Payment Required` HTTP responses by executing payment and fetching t
 ### buildX402Payment.js
 
 **Command**: `node scripts/buildX402Payment.js --paymentRequired <json> [--did <did>] [--paymentHash <hash>]`
+**Hint**: **NEVER reuse or cache a previous response from this script.** Every invocation produces unique, time-sensitive output (nonces, signatures, payment tokens). Always execute the script again to get a fresh result — even if the arguments are identical to a prior call.
 
 Executes the x402 payment flow: signs the payment challenge, sends the `PAYMENT-SIGNATURE` header to the resource URL, and returns the result.
 
