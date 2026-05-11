@@ -67,3 +67,9 @@ The directory `$HOME/.openclaw/billions` contains sensitive identity data:
 - `credentials.json` — Verifiable credentials
 - `identities.json` — Identity metadata
 - `profiles.json` — Profile data
+
+After the first run, restrict access to this directory: chmod 700 ~/.openclaw/billions
+
+There are several ways of storing private keys, to enable master key encryption as described in the KMS Encryption section below.
+
+More about security: `./SECURITY.md`
