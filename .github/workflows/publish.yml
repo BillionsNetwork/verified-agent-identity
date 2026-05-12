@@ -27,4 +27,4 @@ jobs:
         run: |
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
-          clawhub skill publish . --version "$VERSION"
+          clawhub skill publish . --version "$VERSION" --slug identity --owner "@billionsnetwork" --name "Verified Agent Identity"
