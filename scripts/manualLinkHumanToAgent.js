@@ -1,18 +1,14 @@
 const { createPairing } = require("./linkHumanToAgent");
-const { parseArgs, formatError } = require("./shared/utils");
+const { parseArgs, outputError } = require("./shared/utils");
 
 async function main() {
   try {
     const args = parseArgs();
 
     if (!args.challenge) {
-      console.error(
-        "Invalid arguments. Usage: node manualLinkHumanToAgent.js --challenge <json> [--did <did>]",
+      throw new Error(
+        'Invalid arguments. Usage: node manualLinkHumanToAgent.js --challenge <json> [--did <did>]\nExample: node manualLinkHumanToAgent.js --challenge \'{"name": "Agent Name", "description": "Short description of the agent"}\'',
       );
-      console.error(
-        'Example: node manualLinkHumanToAgent.js --challenge \'{"name": "Agent Name", "description": "Short description of the agent"}\'',
-      );
-      process.exit(1);
     }
 
     const challenge = JSON.parse(args.challenge);
@@ -20,8 +16,7 @@ async function main() {
 
     console.log(url);
   } catch (error) {
-    console.error(formatError(error));
-    process.exit(1);
+    outputError(error, true);
   }
 }
 

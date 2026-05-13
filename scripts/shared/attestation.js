@@ -1,8 +1,6 @@
 const { ethers } = require("ethers");
 const { DID } = require("@iden3/js-iden3-core");
-
-const ATTESTATION_SCHEMA_ID =
-  "0xca354bee6dc5eded165461d15ccb13aceb6f77ebbb1fd3fe45aca686097f2911"; // bytes32
+const { schemaId: ATTESTATION_SCHEMA_ID } = require("./constants");
 
 const ATTESTER_DID = ""; // string
 const ATTESTER_IDEN3_ID = 0n; // uint256
@@ -79,7 +77,6 @@ function computeAttestationHash(req) {
 }
 
 module.exports = {
-  buildEncodedAttestation,
   computeAttestationHash,
   buildJsonAttestation,
 };

@@ -19,6 +19,12 @@ const { KeysFileStorage } = require("./storage/keys");
 const { IdentitiesFileStorage } = require("./storage/identities");
 const { DidsFileStorage } = require("./storage/did");
 const { ChallengeFileStorage } = require("./storage/challenge");
+const {
+  rpcUrl,
+  stateContractAddress,
+  chainId,
+  rhsUrl,
+} = require("./constants");
 
 let cachedRuntime = null;
 
@@ -35,7 +41,7 @@ async function newInMemoryKMS() {
   const kms = new KMS();
   kms.registerKeyProvider(KmsKeyType.Secp256k1, secpProvider);
   kms.registerKeyProvider(KmsKeyType.BabyJubJub, bjjProvider);
-  return kms;
+  return { kms, memoryKeyStore };
 }
 
 /**
@@ -87,9 +93,9 @@ function newIdentityWallet(kms, dataStorage, credentialWallet) {
 function getBillionsMainnetConfig() {
   return {
     ...defaultEthConnectionConfig,
-    url: "https://rpc-mainnet.billions.network",
-    contractAddress: "0x3c9acb2205aa72a05f6d77d708b5cf85fca3a896",
-    chainId: 45056,
+    url: rpcUrl,
+    contractAddress: stateContractAddress,
+    chainId: chainId,
   };
 }
 
@@ -99,14 +105,14 @@ function getBillionsMainnetConfig() {
 function getRevocationOpts() {
   return {
     type: CredentialStatusType.Iden3ReverseSparseMerkleTreeProof,
-    id: "https://rhs-staging.polygonid.me",
+    id: rhsUrl,
   };
 }
 
 /**
  * Initializes and returns all runtime dependencies.
  * Uses caching to avoid re-initialization.
- * 
+ *
  * @returns {Promise<Object>} Runtime object containing:
  *   - kms: Key Management System
  *   - identityWallet: Identity wallet instance
@@ -123,7 +129,7 @@ async function getInitializedRuntime() {
   const billionsMainnetConfig = getBillionsMainnetConfig();
   const revocationOpts = getRevocationOpts();
 
-  const kms = await newInMemoryKMS();
+  const { kms, memoryKeyStore } = await newInMemoryKMS();
   const stateStorage = newEthStateStorage(billionsMainnetConfig);
   const dataStorage = newDataStorage(stateStorage);
   const credentialWallet = newCredentialWallet(dataStorage);
@@ -139,6 +145,7 @@ async function getInitializedRuntime() {
     challengeStorage,
     billionsMainnetConfig,
     revocationOpts,
+    memoryKeyStore,
   };
 
   return cachedRuntime;

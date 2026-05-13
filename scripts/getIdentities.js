@@ -1,5 +1,5 @@
 const { getInitializedRuntime } = require("./shared/bootstrap");
-const { formatError, outputSuccess } = require("./shared/utils");
+const { outputError, outputSuccess } = require("./shared/utils");
 
 async function main() {
   try {
@@ -8,16 +8,14 @@ async function main() {
     const identities = await didsStorage.list();
 
     if (identities.length === 0) {
-      console.error(
+      throw new Error(
         "No identities found. Create one with createNewEthereumIdentity.js",
       );
-      process.exit(1);
     }
 
     outputSuccess(identities);
   } catch (error) {
-    console.error(formatError(error));
-    process.exit(1);
+    outputError(error, true);
   }
 }
 
