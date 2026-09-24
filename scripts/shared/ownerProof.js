@@ -1,9 +1,9 @@
 /**
- * Owner proofs: an agent's owner proves, off-chain and in zero knowledge,
- * either their nationality (selective disclosure) or that their nationality is
- * not in a list of sanctioned countries. The proof comes from the owner's
- * Billions wallet and is checked locally by the requesting party. Nothing
- * about nationality is ever written on-chain.
+ * Owner proofs: an agent's human owner answers an arbitrary iden3 query, in
+ * zero knowledge and off-chain, from their Billions wallet. Examples:
+ * disclose a nationality, prove a nationality is not in a list, prove being
+ * over 18, prove holding a membership credential. The proof is checked
+ * locally by the requesting party. Nothing is written on-chain.
  *
  * Binding to the agent: the owner linked the agent through the pairing flow,
  * which records an AgentOwnership attestation whose attester is the owner's
@@ -23,38 +23,45 @@ const ownerProofRelayBase =
 
 const attestationRegistryAddress = "0x6dd6Ad465E93bcb345010ECEf3cFC9144e87b6cC";
 
-const basicPersonContext =
-  "ipfs://QmZbsTnRwtCmbdg3r9o7Txid37LmvPcvmzVi1Abvqu1WKL";
-const basicPersonType = "BasicPerson";
-const nationalityField = "nationalities.nationality1CountryCode";
+const ownerProofTtlMs = 60 * 60 * 1000;
+const defaultCircuitId = CircuitId.AtomicQueryV3Stable;
+const maxScopes = 5;
 
-/**
- * BasicPerson issuers trusted by default: the Billions passport and Aadhaar
- * issuers and idOS (the production BasicPerson allow-list of the wallet).
- * Never `*`: anyone can issue a BasicPerson to themselves.
- */
-const defaultAllowedIssuers = [
-  "did:iden3:billions:test:2VxnoiNqdMPyMXmEKpP8wGqrY6Vb7mgeQQUywyVeWe",
-  "did:iden3:billions:test:2VxnoiNqdMPxzqp7X6MV7GfoPkDZ7ij499mDZAo72y",
-  "did:iden3:billions:main:2VwqkgA2dNEwsnmojaay7C5jJEb8ZygecqCSU3xVfm",
+/** Off-chain query circuits an owner proof may use. */
+const allowedCircuitIds = [
+  CircuitId.AtomicQueryV3Stable,
+  CircuitId.AtomicQueryV3,
+  CircuitId.AtomicQuerySigV2,
+  CircuitId.AtomicQueryMTPV2,
 ];
 
-/**
- * Default "sanctioned countries" policy: the countries under comprehensive US
- * (OFAC) embargo, as ISO 3166-1 alpha-3 codes. Callers should pass the list
- * their own compliance policy requires with --countries.
- */
-const defaultSanctionedCountries = ["CUB", "IRN", "PRK", "SYR"];
+/** iden3 query operators. `{}` (no operator) is selective disclosure. */
+const operators = [
+  "$eq",
+  "$ne",
+  "$lt",
+  "$lte",
+  "$gt",
+  "$gte",
+  "$in",
+  "$nin",
+  "$between",
+  "$nonbetween",
+  "$exists",
+];
 
-/** Largest $nin list the credentialAtomicQueryV3 circuit accepts. */
-const maxSanctionedCountries = 64;
-
-const ownerProofScopeId = 1;
-const ownerProofTtlMs = 60 * 60 * 1000;
-
-const PROOF_TYPES = {
-  nationality: "nationality",
-  notSanctioned: "notSanctioned",
+const operatorText = {
+  $eq: "is",
+  $ne: "is not",
+  $lt: "is less than",
+  $lte: "is at most",
+  $gt: "is greater than",
+  $gte: "is at least",
+  $in: "is one of",
+  $nin: "is not one of",
+  $between: "is between",
+  $nonbetween: "is not between",
+  $exists: "exists:",
 };
 
 const registryAbi = [
@@ -103,64 +110,143 @@ async function getAgentOwner(agentDid, { provider } = {}) {
   };
 }
 
-function parseCountries(value) {
-  const countries = (value ? value.split(",") : defaultSanctionedCountries)
-    .map((c) => c.trim().toUpperCase())
-    .filter(Boolean);
-  const unique = [...new Set(countries)];
-  if (unique.length === 0) {
-    throw new Error("--countries must list at least one country code");
+/**
+ * Validates one query spec and normalizes it to `{ circuitId, query, params }`.
+ * A spec is either a bare iden3 query (`{ allowedIssuers, context, type,
+ * credentialSubject? }`) or `{ circuitId?, query, params? }`.
+ */
+function normalizeQuerySpec(spec, index) {
+  const where = `query #${index + 1}`;
+  if (!spec || typeof spec !== "object" || Array.isArray(spec)) {
+    throw new Error(`${where} must be an object`);
   }
-  const invalid = unique.filter((c) => !/^[A-Z]{3}$/.test(c));
-  if (invalid.length) {
-    throw new Error(
-      `Country codes must be ISO 3166-1 alpha-3 (e.g. IRN): ${invalid.join(", ")}`,
-    );
-  }
-  if (unique.length > maxSanctionedCountries) {
-    throw new Error(
-      `At most ${maxSanctionedCountries} countries can be checked in one proof`,
-    );
-  }
-  return unique;
-}
+  const isWrapped = spec.query && typeof spec.query === "object";
+  const query = isWrapped ? spec.query : spec;
+  const circuitId = (isWrapped && spec.circuitId) || defaultCircuitId;
+  const params = isWrapped ? spec.params : undefined;
 
-function parseAllowedIssuers(value) {
-  if (!value) return defaultAllowedIssuers;
-  const issuers = value
-    .split(",")
-    .map((d) => d.trim())
-    .filter(Boolean);
-  if (issuers.length === 0 || issuers.includes("*")) {
-    throw new Error("--allowedIssuers must list explicit issuer DIDs");
+  if (!allowedCircuitIds.includes(circuitId)) {
+    throw new Error(
+      `${where}: circuitId must be one of ${allowedCircuitIds.join(", ")}`,
+    );
+  }
+  if (typeof query.type !== "string" || !query.type) {
+    throw new Error(`${where}: "type" (credential type) is required`);
+  }
+  if (typeof query.context !== "string" || !query.context) {
+    throw new Error(`${where}: "context" (JSON-LD context URL) is required`);
+  }
+  // Never "*": anyone can issue themselves any credential, so a query that
+  // accepts every issuer proves nothing about the owner.
+  const issuers = query.allowedIssuers;
+  if (
+    !Array.isArray(issuers) ||
+    issuers.length === 0 ||
+    issuers.includes("*")
+  ) {
+    throw new Error(
+      `${where}: "allowedIssuers" must list the trusted issuer DIDs explicitly`,
+    );
   }
   issuers.forEach((d) => DID.parse(d));
-  return issuers;
+
+  const subject = query.credentialSubject;
+  if (subject !== undefined) {
+    if (typeof subject !== "object" || Array.isArray(subject)) {
+      throw new Error(`${where}: "credentialSubject" must be an object`);
+    }
+    const fields = Object.keys(subject);
+    // The atomic query circuits constrain a single field per query; use one
+    // query per condition.
+    if (fields.length > 1) {
+      throw new Error(
+        `${where}: only one credentialSubject field per query; add another query for each extra condition`,
+      );
+    }
+    for (const field of fields) {
+      const condition = subject[field];
+      if (!condition || typeof condition !== "object") {
+        throw new Error(
+          `${where}: condition for "${field}" must be an object such as {"$lt": 20080101} or {} to disclose`,
+        );
+      }
+      const ops = Object.keys(condition);
+      if (ops.length > 1) {
+        throw new Error(`${where}: one operator per field ("${field}")`);
+      }
+      if (ops.length === 1 && !operators.includes(ops[0])) {
+        throw new Error(
+          `${where}: unknown operator ${ops[0]}. Use one of ${operators.join(", ")}`,
+        );
+      }
+    }
+  }
+  return { circuitId, query, ...(params ? { params } : {}) };
 }
 
-/** Builds the credentialAtomicQueryV3 scope for the requested proof. */
-function buildOwnerProofScope({ proofType, countries, allowedIssuers }) {
-  let credentialSubject;
-  if (proofType === PROOF_TYPES.nationality) {
-    // Selective disclosure: the wallet reveals only this one field.
-    credentialSubject = { [nationalityField]: {} };
-  } else if (proofType === PROOF_TYPES.notSanctioned) {
-    credentialSubject = { [nationalityField]: { $nin: countries } };
-  } else {
-    throw new Error(
-      `Unknown proof type ${proofType}. Use "nationality" or "notSanctioned"`,
-    );
+/** Parses `--query` JSON: one query spec or an array of them. */
+function parseQuerySpecs(json) {
+  if (!json) {
+    throw new Error("--query is required (an iden3 query as JSON)");
   }
-  return {
-    id: ownerProofScopeId,
-    circuitId: CircuitId.AtomicQueryV3Stable,
-    query: {
-      allowedIssuers,
-      context: basicPersonContext,
-      type: basicPersonType,
-      credentialSubject,
-    },
-  };
+  let parsed;
+  try {
+    parsed = JSON.parse(json);
+  } catch (e) {
+    throw new Error(`--query is not valid JSON: ${e.message}`);
+  }
+  const list = Array.isArray(parsed) ? parsed : [parsed];
+  if (list.length === 0 || list.length > maxScopes) {
+    throw new Error(`--query must contain between 1 and ${maxScopes} queries`);
+  }
+  return list.map(normalizeQuerySpec);
+}
+
+/** Builds the proof request scopes, numbered from 1. */
+function buildScopes(specs) {
+  return specs.map((spec, i) => ({ id: i + 1, ...spec }));
+}
+
+/** Plain-language description of one condition, shown to the owner. */
+function describeQuery(query) {
+  const [field] = Object.keys(query.credentialSubject || {});
+  if (!field) return `that you hold a ${query.type} credential`;
+  const condition = query.credentialSubject[field];
+  const [op] = Object.keys(condition);
+  if (!op) return `your ${field} from your ${query.type} credential`;
+  const value = condition[op];
+  const text = Array.isArray(value) ? value.join(", ") : JSON.stringify(value);
+  return `that ${field} on your ${query.type} credential ${operatorText[op]} ${text}`;
+}
+
+function describeRequest({ agentDid, specs, requester, message }) {
+  if (message) return message;
+  const who = requester ? `${requester} asks you` : "You are asked";
+  const parts = specs.map((s) => describeQuery(s.query));
+  return `${who}, as the owner of agent ${agentDid}, to prove ${parts.join("; and ")}. Only disclosed fields are shared.`;
+}
+
+function getPath(obj, path) {
+  return path
+    .split(".")
+    .reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
+}
+
+/**
+ * The values a selective-disclosure query revealed, keyed by field path.
+ * Empty for queries that only prove a condition.
+ */
+function disclosedValues(scope, scopeResponse) {
+  const subject = scopeResponse?.vp?.verifiableCredential?.credentialSubject;
+  const disclosed = {};
+  for (const [field, condition] of Object.entries(
+    scope.query.credentialSubject || {},
+  )) {
+    if (Object.keys(condition).length === 0) {
+      disclosed[field] = getPath(subject, field);
+    }
+  }
+  return disclosed;
 }
 
 async function createRelaySession() {
@@ -192,29 +278,16 @@ function relayCallbackUrl(sessionId) {
   return `${ownerProofRelayBase}/callback?sessionId=${encodeURIComponent(sessionId)}`;
 }
 
-/** The disclosed nationality from a selective-disclosure proof response. */
-function disclosedNationality(scopeResponse) {
-  const subject = scopeResponse?.vp?.verifiableCredential?.credentialSubject;
-  const value = subject?.nationalities?.nationality1CountryCode;
-  return typeof value === "string" ? value : undefined;
-}
-
 module.exports = {
-  PROOF_TYPES,
-  basicPersonContext,
-  basicPersonType,
-  nationalityField,
-  defaultAllowedIssuers,
-  defaultSanctionedCountries,
-  ownerProofScopeId,
   ownerProofTtlMs,
   getAgentOwner,
   iden3IdFromDid,
-  parseCountries,
-  parseAllowedIssuers,
-  buildOwnerProofScope,
+  parseQuerySpecs,
+  normalizeQuerySpec,
+  buildScopes,
+  describeRequest,
+  disclosedValues,
   createRelaySession,
   fetchRelaySession,
   relayCallbackUrl,
-  disclosedNationality,
 };
