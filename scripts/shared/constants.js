@@ -23,6 +23,8 @@ const schemaId =
   "0xca354bee6dc5eded165461d15ccb13aceb6f77ebbb1fd3fe45aca686097f2911";
 const resolverUrl = "https://resolver.privado.id/1.0/identifiers";
 const rpcUrl = "https://rpc-mainnet.billions.network";
+const testnetRpcUrl = "https://rpc-testnet.billions.network";
+const ipfsGatewayUrl = "https://ipfs-proxy-cache.privado.id";
 const stateContractAddress = "0x3c9acb2205aa72a05f6d77d708b5cf85fca3a896";
 const chainId = 45056;
 const rhsUrl = "https://rhs-staging.polygonid.me";
@@ -46,6 +48,8 @@ module.exports = {
   schemaId,
   resolverUrl,
   rpcUrl,
+  testnetRpcUrl,
+  ipfsGatewayUrl,
   stateContractAddress,
   chainId,
   rhsUrl,

@@ -81,6 +81,14 @@ async function createAuthRequestMessage(jws, scope) {
     },
   );
 
+  return shortenToWalletLink(message);
+}
+
+/**
+ * Stores an authorization request with the URL shortener and returns the
+ * Billions wallet link that opens it.
+ */
+async function shortenToWalletLink(message) {
   const shortenerResponse = await fetchWithTimeout(
     `${urlShortener}/shortener`,
     {
@@ -106,4 +114,5 @@ module.exports = {
   getAuthResponseMessage,
   getUserWallet,
   createAuthRequestMessage,
+  shortenToWalletLink,
 };

@@ -83,6 +83,7 @@ This skill enables AI agents to create, manage, link, prove and verify ownership
 - **Human-Agent Linking**: Link a human identity to an agent's DID through signed challenges
 - **Proof Generation**: Generate cryptographic proofs to authenticate as a specific identity
 - **Proof Verification**: Verify proofs to confirm identity ownership
+- **Owner Proof**: Before transacting with another agent, have its human owner prove their nationality, or that it is not in a list of sanctioned countries, with an off-chain zero-knowledge proof from the Billions wallet (see `reference/owner-proof/SKILL.md`)
 
 ## Architecture
 

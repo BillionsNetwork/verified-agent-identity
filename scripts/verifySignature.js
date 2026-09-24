@@ -12,10 +12,11 @@ async function main() {
   try {
     const args = parseArgs();
 
-    if (!args.signature) {
-      console.error("Error: --signature parameters is required");
-      console.error(
-        "Usage: node scripts/verifySignature.js --did <did> --signature <signature>",
+    // The reference docs use --token; --signature is kept for older callers.
+    const token = args.token || args.signature;
+    if (!args.did || !token) {
+      throw new Error(
+        "--did and --token are required. Usage: node scripts/verifySignature.js --did <did> --token <token>",
       );
     }
 
@@ -40,7 +41,7 @@ async function main() {
 
     // Create JWS packer and unpack signature
     const jws = new JWSPacker(kms, resolveDIDDocument);
-    const basicMessage = await jws.unpack(byteEncoder.encode(args.signature));
+    const basicMessage = await jws.unpack(byteEncoder.encode(token));
 
     // Verify the sender
     if (basicMessage.from !== args.did) {

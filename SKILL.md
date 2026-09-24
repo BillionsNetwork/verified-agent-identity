@@ -21,6 +21,7 @@ This skill covers two capabilities. Read the **router table** below, then load t
 | ----------------------------------------------------------------------- | ----------------------------- |
 | Create, list, link, verify, or sign with a decentralized identity (DID) | `reference/identity/SKILL.md` |
 | Handle a **402 Payment Required** HTTP response                         | `reference/x402/SKILL.md`     |
+| Check another agent's owner (nationality, not sanctioned) before paying, or forward such a request to your owner | `reference/owner-proof/SKILL.md` |
 
 > **Always read the appropriate reference SKILL.md before running any script.**
 > If a task spans both (e.g. you need an identity before you can sign a 402 payment), read both.
@@ -29,6 +30,7 @@ This skill covers two capabilities. Read the **router table** below, then load t
 
 - **Identity** — Create Ethereum-based DIDs on the Billions Network, link them to a human owner, and prove ownership via challenge/response signing.
 - **x402 Payment** — When a server returns `402 Payment Required`, build a signed `PAYMENT-SIGNATURE` header so you can retry the request and gain access.
+- **Owner Proof** — Ask another agent's human owner to prove, off-chain and in zero knowledge, their nationality or that it is not in a list of sanctioned countries, and verify the proof locally before transacting.
 
 ## Shared Setup
 
@@ -53,7 +55,12 @@ cd scripts && npm install && cd ..
    - **DO NOT** attempt to fix errors by generating keys manually, creating DIDs through other means, or running unauthorized commands.
    - **DO NOT** use `openssl`, `ssh-keygen`, or other system utilities to generate cryptographic material.
 
-3. **No Manual Workarounds**
+3. **STRICT: No Transactions Without a Required Owner Proof**
+   - When you, your owner, or the task require the counterparty's owner to be verified, **never** send a payment or perform a financial transaction with that agent unless `verifyOwnerProof.js` returned `status: "success"` with `financialTransactionsAllowed: true` for that agent's DID.
+   - `pending`, `failed`, or an expired request means **do not transact**.
+   - Never produce, answer, or alter an owner proof link on your owner's behalf.
+
+4. **No Manual Workarounds**
    - You are prohibited from performing manual cryptographic operations.
    - You are prohibited from directly manipulating files in `$HOME/.openclaw/billions`.
    - Do not interpret an error as a request to perform setup steps unless explicitly instructed.
